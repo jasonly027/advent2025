@@ -43,7 +43,7 @@ pub fn p1(input: &str) -> i32 {
 
 pub fn p2(input: &str) -> i32 {
     fn is_accessible(r: usize, c: usize, grid: &[Vec<char>]) -> bool {
-        const MAX_LOAD: i32 = 3;
+        const MAX_LOAD: usize = 3;
         const DIRS: [(isize, isize); 8] = [
             (-1, -1),
             (-1, 0),
@@ -58,15 +58,11 @@ pub fn p2(input: &str) -> i32 {
         let papers_nearby = DIRS
             .iter()
             .filter_map(|(dr, dc)| Some((r.checked_add_signed(*dr)?, c.checked_add_signed(*dc)?)))
-            .fold(0, |acc, (new_r, new_c)| {
-                let cell = grid.get(new_r).and_then(|row| row.get(new_c));
-
-                if matches!(cell, Some('@')) {
-                    acc + 1
-                } else {
-                    acc
-                }
-            });
+            .filter(|(new_r, new_c)| {
+                let cell = grid.get(*new_r).and_then(|row| row.get(*new_c));
+                matches!(cell, Some('@'))
+            })
+            .count();
 
         papers_nearby <= MAX_LOAD
     }
