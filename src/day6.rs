@@ -1,7 +1,3 @@
-use std::ops::{self, Mul};
-
-use tracing::info;
-
 #[derive(Debug, Clone, Copy)]
 enum Operation {
     Add,
@@ -92,6 +88,7 @@ pub fn p2(input: &str) -> u64 {
 mod tests {
     use super::*;
     use test_log::test;
+    use tracing::info;
 
     #[test]
     fn sample_p1() {
