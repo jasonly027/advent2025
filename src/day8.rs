@@ -12,22 +12,22 @@ pub fn p1(input: &str, connections: usize) -> usize {
         .lines()
         .map(|l| {
             l.split(',')
-                .map(|x| x.parse::<u64>().unwrap())
+                .map(|x| x.parse().unwrap())
                 .collect_tuple()
                 .unwrap()
         })
         .collect();
 
-    let mut combos: Vec<(&Point, &Point, f64)> = points
+    let combos: Vec<(&Point, &Point, f64)> = points
         .iter()
         .tuple_combinations()
         .map(|(p0, p1)| (p0, p1, euclid_dist(p0, p1)))
+        .sorted_by(|a, b| a.2.partial_cmp(&b.2).unwrap())
         .collect();
-    combos.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap());
 
     let mut dsu = Dsu::new();
-    for (a, b, _) in &combos[..connections] {
-        dsu.unify(**a, **b);
+    for (p0, p1, _) in &combos[..connections] {
+        dsu.unify(**p0, **p1);
     }
 
     dsu.size
@@ -93,18 +93,18 @@ pub fn p2(input: &str) -> u64 {
         .lines()
         .map(|l| {
             l.split(',')
-                .map(|x| x.parse::<u64>().unwrap())
+                .map(|x| x.parse().unwrap())
                 .collect_tuple()
                 .unwrap()
         })
         .collect();
 
-    let mut combos: Vec<(&Point, &Point, f64)> = points
+    let combos: Vec<(&Point, &Point, f64)> = points
         .iter()
         .tuple_combinations()
         .map(|(p0, p1)| (p0, p1, euclid_dist(p0, p1)))
+        .sorted_by(|a, b| a.2.partial_cmp(&b.2).unwrap())
         .collect();
-    combos.sort_by(|p0, p1| p0.2.partial_cmp(&p1.2).unwrap());
 
     let mut dsu = Dsu::new();
     combos
@@ -112,8 +112,8 @@ pub fn p2(input: &str) -> u64 {
         .take_while_inclusive(|(p0, p1, _)| {
             dsu.unify(**p0, **p1);
 
-            let pa = dsu.find(**p0);
-            *dsu.size.get(&pa).unwrap() != points.len()
+            let root = dsu.find(**p0);
+            *dsu.size.get(&root).unwrap() != points.len()
         })
         .last()
         .map(|(p0, p1, _)| p0.0 * p1.0)
