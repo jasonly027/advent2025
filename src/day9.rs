@@ -42,17 +42,27 @@ pub fn p2(input: &str) -> usize {
 
     // Set borders
     for (&(x0, y0), &(x1, y1), &(x2, y2)) in points.iter().circular_tuple_windows().step_by(2) {
-        // A vertical border
-        debug_assert_eq!(x0, x1);
-        grid[min(y0, y1)..=max(y0, y1)]
-            .iter_mut()
-            .for_each(|row| row[x0] = true);
-
-        // A horizontal border
-        debug_assert_eq!(y1, y2);
-        grid[y1][min(x1, x2)..=max(x1, x2)]
-            .iter_mut()
-            .for_each(|c| *c = true);
+        if x0 == x1 && y1 == y2 {
+            // Vertical
+            grid[min(y0, y1)..=max(y0, y1)]
+                .iter_mut()
+                .for_each(|row| row[x0] = true);
+            // Horizontal
+            grid[y1][min(x1, x2)..=max(x1, x2)]
+                .iter_mut()
+                .for_each(|c| *c = true);
+        } else if y0 == y1 && x1 == x2 {
+            // Horizontal
+            grid[y0][min(x0, x1)..=max(x0, x1)]
+                .iter_mut()
+                .for_each(|c| *c = true);
+            // Vertical
+            grid[min(y1, y2)..=max(y1, y2)]
+                .iter_mut()
+                .for_each(|row| row[x1] = true);
+        } else {
+            unreachable!("Points are not adjacent");
+        }
     }
 
     points
