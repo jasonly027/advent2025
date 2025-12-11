@@ -1,6 +1,9 @@
-use std::cmp::{max, min};
+use std::{
+    cmp::{max, min},
+    ops::Not,
+};
 
-use itertools::Itertools;
+use itertools::{Itertools, chain};
 
 type Point = (usize, usize);
 
@@ -68,14 +71,23 @@ pub fn p2(input: &str) -> usize {
     points
         .iter()
         .tuple_combinations()
-        .filter(|&(&p0, &p1)| is_within(p0, p1, &grid))
-        .map(|(p0, p1)| area(p0, p1))
-        .max()
+        .map(|(p0, p1)| (p0, p1, area(p0, p1)))
+        .sorted_by(|p0, p1| p1.2.cmp(&p0.2))
+        .find(|&(&p0, &p1, _)| is_within(p0, p1, &grid))
         .unwrap()
+        .2
 }
 
-fn is_within(mut p0: Point, mut p1: Point, grid: &[Vec<bool>]) -> bool {
-    todo!()
+fn is_within((x0, y0): Point, (x1, y1): Point, grid: &[Vec<bool>]) -> bool {
+    let (x0, x1) = (min(x0, x1), max(x0, x1));
+    let (y0, y1) = (min(y0, y1), max(y0, y1));
+
+    let top = grid[y0 + 1][x0 + 1..x1].iter();
+    let bottom = grid[y1 - 1][x0 + 1..x1].iter();
+    let left = grid[y0 + 1..y1].iter().map(|row| &row[x0 + 1]);
+    let right = grid[y0 + 1..y1].iter().map(|row| &row[x1 - 1]);
+
+    chain!(top, bottom, left, right).all(|c| c.not())
 }
 
 #[cfg(test)]
